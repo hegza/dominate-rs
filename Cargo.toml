@@ -5,4 +5,6 @@ authors = ["Henri Lunnikivi <henri.lunnikivi@gmail.com>"]
 
 [dependencies]
 clap = "*"
+phf = "*"
+phf_macros = "*"
 
