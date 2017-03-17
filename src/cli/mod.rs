@@ -1,43 +1,55 @@
-mod tokens;
 mod text;
 mod actions;
 
 use std::io::{self, BufRead, Write};
 
 use self::text::*;
-use self::tokens::*;
 use self::actions::*;
 
-pub fn run() {
+pub struct CLI {
+    file: String,
+}
 
-    loop {
-        // Read preferred action
-        let input = read_buffer("> ").unwrap();
-        let action = resolve_action(&input);
+impl CLI {
+    pub fn new(file: &str) -> CLI {
+        CLI { file: String::from(file) }
+    }
 
-        // Act
-        match action {
-            TopLevelAction::Help => println!("{}", HELP),
-            TopLevelAction::Quit => {
-                println!("bye!");
+    pub fn run(&mut self) {
+
+        loop {
+            // Read preferred action
+            let input = read_buffer("> ").unwrap();
+            let parsed_action = parse_keyword(&input);
+
+            if parsed_action.is_none() {
+                println!("unknown pattern: {},\navailable commands: display, help, quit",
+                         input);
+                continue;
+            }
+
+            // Act
+            if !self.act(parsed_action.unwrap()) {
                 break;
             }
-            TopLevelAction::Unknown => {
-                println!("unknown pattern: {},\navailable commands: help, quit",
-                         input);
+
+            // Output a newline at the end of the loop, for clarity
+            println!("");
+        }
+
+    }
+
+    fn act(&mut self, action: Keyword) -> bool {
+        match action {
+            Keyword::Display => println!("{}\nEOF", self.file),
+            Keyword::Help => println!("{}", HELP),
+            Keyword::Quit => {
+                println!("bye!");
+                return false;
             }
         }
 
-        // Output a newline at the end of the loop, for clarity
-        println!("");
-    }
-}
-
-fn resolve_action(input: &str) -> TopLevelAction {
-    match input.as_ref() {
-        HELP_TOKEN => TopLevelAction::Help,
-        EXIT_TOKEN => TopLevelAction::Quit,
-        _ => TopLevelAction::Unknown,
+        true
     }
 }
 
