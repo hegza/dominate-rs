@@ -2,4 +2,5 @@ target
 doc_local
 .tags*
 .vscode
+data
 
